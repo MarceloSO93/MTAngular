@@ -1,0 +1,192 @@
+<html ng-app="expressoesRegulares">
+
+<head>
+    <title>Titulo</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <script src="angular/angular.min.js"></script>
+    <script src="app.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="bootstrap/bootstrap.min.css">
+
+    <link rel="stylesheet" type="text/css" href="bootstrap/style.css">
+    <style>
+        .form-control {
+        margin-top: 10px;
+        width: 30px;
+        padding: 4px;
+        }
+    </style>
+</head>
+
+<body ng-controller="expressoesControle">
+
+    <div class="row">
+
+        <section>
+            <section class="timeline" ng-style='styleSection(fita)'>
+
+                <figure class="timeline--inner">
+
+                    <i ng-repeat="cel in fita" ng-style="cel.style" class="timeline--inner-pin is-featured has-selected"
+                        ng-class="{'is-selected': cel.cursor}" data-title="Featured Pin">
+                        {{cel.simbolo}}
+                    </i>
+
+                </figure>
+
+            </section>
+
+        </section>
+
+    </div>
+
+    <div class="row text-right" ng-if="!execucao">
+
+        <div class="col-md-6">
+            <button type="button" ng-click="addLeft(fita)" class="btn btn-primary ">< * Add</button> 
+        </div> 
+
+        <div class="col-md-6">
+
+            <div class="text-left">
+                <button type="button" ng-click="addRight(fita)" class="btn btn-primary ">Add * ></button>
+            </div>
+
+            <div class="text-right">
+                <button type="button" ng-click="exemploMultiplicacao()" class="btn btn-info ">Exemplo Multiplicação</button>
+                <button type="button" ng-click="exemploSoma()" class="btn btn-warning ">Exemplo soma</button>
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="row text-right" ng-if="execucao">
+        <div class="col-md-6">
+            <h2>
+                Estado:
+            </h2>
+        </div>
+        <div class="col-md-6 text-left">
+            <h2>
+                {{estado}}
+            </h2>
+        </div>
+    </div>
+
+    <div class="jumbotron" ng-style='styleSizeTable(tabela)'>
+        <div class="row">
+            <div class="col-md-6 text-left">
+                <button id="go" ng-disabled="execucao || tableIsEditable" type="button" ng-click="play(fita, estado, tabela)"
+                    class="btn btn-success">Executar</button>
+                <button id="go" type="button" ng-click="reset()" class="btn btn-light" ng-disabled="tableIsEditable">Reset</button>
+            </div>
+            <div class="col-md-6 text-right">
+                <button type="button" ng-click="editeTable()" ng-disabled="execucao"
+                    class="btn btn-danger">{{tableIsEditable?'Gravar':'Editar'}}</button>
+            </div>
+        </div>
+
+
+        <table class="table table-striped table-bordered">
+            <!-- <caption>TESTEEEE</caption> -->
+            <thead>
+                <tr>
+
+                    <th scope="col" style="max-width: 10px;">
+                        <div class="text-center">
+                            <div>
+                                {{tabela[0].description}}
+                            </div>
+                        </div>
+                    </th>
+
+                    <th ng-repeat="col in tabela[0].head" scope="col" style="max-width: 10px;">
+                        <div class="text-center">
+                            <div ng-show="!tableIsEditable">
+                                {{col.escrita}}
+                            </div>
+                            <div ng-show="tableIsEditable">
+                                <input type="text" class="form-control" ng-model="col.escrita"
+                                    placeholder="Ação escrita">
+                            </div>
+                        </div>
+                    </th>
+                </tr>
+            </thead>
+
+            <tr ng-repeat="line in tabela" ng-if="!line.head">
+                <td scope="row">
+                    <div class="text-center">
+                        <div ng-show="!tableIsEditable">
+                            {{line.estado}}
+                        </div>
+                        <div ng-show="tableIsEditable">
+                            <input type="text" class="form-control" ng-model="line.estado" placeholder="">
+                        </div>
+                    </div>
+
+                </td>
+                <td scope="row" ng-repeat="action in line.actions">
+                    <div class="text-center" ng-show="!tableIsEditable">
+                        <span>
+                            {{action.estado}}
+                        </span>|
+                        <span>
+                            {{action.escrita}}
+                        </span>|
+                        <span>
+                            {{action.diracao}}
+                        </span>
+                    </div>
+
+                    <div class="row text-center" ng-show="tableIsEditable">
+                        <div class="col-md-4">
+                            <input type="text" class="form-control" ng-model="action.estado" placeholder="">
+                        </div>
+                        <div class="col-md-4">
+                            <input type="text" class="form-control" ng-model="action.escrita" placeholder="">
+                        </div>
+                        <div class="col-md-4">
+                            <input type="text" class="form-control" ng-model="action.diracao" placeholder="">
+                        </div>
+                    </div>
+
+                </td>
+            </tr>
+        </table>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="row">
+                    <div class="col-md-6">
+                        <button type="button" ng-click="addLine(tabela)" class="btn btn-primary btn-block"
+                            ng-if="tableIsEditable">Add line</button>
+                    </div>
+                    <div class="col-md-6">
+                        <button type="button" ng-click="removeLine(tabela)" class="btn btn-danger btn-block"
+                            ng-if="tableIsEditable">Delete line</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="row">
+                    <div class="col-md-6">
+                        <button type="button" ng-click="addColumn(tabela)" class="btn btn-primary btn-block"
+                            ng-if="tableIsEditable">Add column</button>
+                    </div>
+                    <div class="col-md-6">
+                        <button type="button" ng-click="removeColumn(tabela)" class="btn btn-danger btn-block"
+                            ng-if="tableIsEditable">Delete column</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- {{tabela}} -->
+
+</body>
+
+</html>

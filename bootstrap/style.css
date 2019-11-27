@@ -1,0 +1,38 @@
+.painel{
+    width: 440px;
+    height: 550px;
+    padding: 20px;
+    margin: 5px;
+    background-color: #c4e3f3;
+    border-radius: 10px;
+   
+}
+
+.form-control{
+
+    margin-top: 10px;
+
+}
+
+
+.navlist 
+{
+    display: inline-block;
+    padding: 1px;
+    margin: 1px;
+    list-style-type: none;
+}
+
+.container {
+    width: auto;
+    height: auto;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center
+}
+
+
+
+
+
