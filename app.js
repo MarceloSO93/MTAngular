@@ -1,20 +1,18 @@
 angular.module("expressoesRegulares", []);
-angular.module("expressoesRegulares").controller("expressoesControle", function ($scope, $interval) {
+angular.module("expressoesRegulares").controller("expressoesControle", function ($scope, $interval, $timeout) {
 
     $scope.app = "Expressoes Regulares";
     $scope.tableIsEditable = false;
+
+    $scope.simbolAddLeft = "";
+    $scope.simbolAddRight = "";
 
     $scope.estado = "->";
     $scope.execucao = false;
 
     var stopLoop;
 
-    $scope.fita = [
-        { simbolo: "->", cursor: true, style: { "left": 0 } },
-        // { simbolo: "*", cursor: false, style: { "left": 100 } },
-        { simbolo: "_", cursor: false, style: { "left": 100 } }
-        // { simbolo: "*", cursor: false, style: { "left": 300 } },
-    ]
+    $scope.fita = []
 
     let fitaReset = [];
 
@@ -25,9 +23,54 @@ angular.module("expressoesRegulares").controller("expressoesControle", function 
         }
     }
 
-    $scope.addLeft = function (fita) {
-        $scope.fita.splice(1, 0, { simbolo: "*", cursor: false, style: { "left": 0 } })
-        reorderPositionCels(fita)
+    var validaEntradaSimbolo = function (input) {
+        if (!input) {
+            alert("Informe um simbolo");
+            return undefined;
+        }
+        else if (input.length > 1) {
+            alert("Informe apenas um simbolo");
+            return undefined;
+        }
+        return input;
+    }
+
+    $scope.getInputString = function (string) {
+        $scope.fita = []; //limpa lista
+        var fita = [];
+
+        if (string.length > 0) {
+
+            let a = string.charAt(0);
+            let b = string.charAt(1);
+
+            if (a + b == "->") {
+                fita.push({ simbolo: "->", cursor: true, style: { "left": 0 } });
+            } else {
+                alert("Simbolo inicial invalido");
+                return;
+            }
+
+            for (var i = 2; i < string.length; i++) {
+                fita.push({ simbolo: string.charAt(i), cursor: false, style: { "left": (i - 1) * 100 } });
+            }
+
+            generateRibbon(fita);
+        }
+    }
+
+    var generateRibbon = function (fita) {
+        for (var i = 0; i < fita.length; i++) {
+            $scope.fita.push(fita[i]);
+        }
+
+    }
+
+    $scope.addLeft = function (fita, simbolAddLeft) {
+        if (validaEntradaSimbolo(simbolAddLeft)) {
+            $scope.fita.splice(1, 0, { simbolo: simbolAddLeft, cursor: false, style: { "left": 0 } })
+            reorderPositionCels(fita)
+        }
     }
 
     $scope.addBlankLeft = function (fita) {
@@ -35,9 +78,11 @@ angular.module("expressoesRegulares").controller("expressoesControle", function 
         reorderPositionCels(fita)
     }
 
-    $scope.addRight = function (fita) {
-        $scope.fita.push({ simbolo: "*", cursor: false, style: { "left": 0 } })
-        reorderPositionCels(fita)
+    $scope.addRight = function (fita, simbolAddRight) {
+        if (validaEntradaSimbolo(simbolAddRight)) {
+            $scope.fita.push({ simbolo: simbolAddRight, cursor: false, style: { "left": 0 } })
+            reorderPositionCels(fita)
+        }
     }
 
     $scope.addBlankRight = function (fita) {
@@ -54,6 +99,11 @@ angular.module("expressoesRegulares").controller("expressoesControle", function 
 
     /*Mtethod execute work MT*/
     $scope.play = function (fita, estado, tabela) {
+
+        if(fita.length <= 0){
+            alert("Fita não encontrada");
+            return;
+        }
 
         $scope.execucao = true;
         fitaReset = angular.copy(fita);
@@ -136,8 +186,8 @@ angular.module("expressoesRegulares").controller("expressoesControle", function 
 
             if (index == 0) {
                 $scope.addBlankLeft($scope.fita);
-                $scope.fita[ index ].cursor = true;
-            }else{
+                $scope.fita[index].cursor = true;
+            } else {
                 $scope.fita[index - 1].cursor = true;
             }
 
@@ -147,7 +197,7 @@ angular.module("expressoesRegulares").controller("expressoesControle", function 
             alert("FIM");
             return
         } else {
-            alert("else");
+            alert(directionHead + " -> Simbolo não encontrado");
         }
 
     }
@@ -189,12 +239,12 @@ angular.module("expressoesRegulares").controller("expressoesControle", function 
 
         let size = tabela[0].head.length;
 
-        if(size <= 3 || size == undefined){
+        if (size <= 3 || size == undefined) {
             return {
                 "width": 500,
                 "transition": "transform 0.5s;"
             }
-        }else{
+        } else {
             return {
                 "width": size * 150,
                 "transition": "transform 0.5s;"
@@ -224,6 +274,11 @@ angular.module("expressoesRegulares").controller("expressoesControle", function 
 
     $scope.exemploMultiplicacao = function () {
         $scope.tabela = tabelaMultiplicacao;
+    }
+
+    $scope.tabelaComparaLetras = function () {
+        $scope.tabela = tabelaComparaLetras;
+        $scope.string = "->AB"
     }
 
 
@@ -628,6 +683,209 @@ angular.module("expressoesRegulares").controller("expressoesControle", function 
                     "estado": "",
                     "escrita": "",
                     "diracao": ""
+                },
+                {
+                    "estado": "",
+                    "escrita": "",
+                    "diracao": ""
+                }
+            ]
+        }
+    ];
+
+
+
+    var tabelaComparaLetras = [
+        {
+            "description": "Est.",
+            "head": [
+                {
+                    "escrita": "A"
+                },
+                {
+                    "escrita": "B"
+                },
+                {
+                    "escrita": "X"
+                },
+                {
+                    "escrita": "->"
+                },
+                {
+                    "escrita": "_"
+                },
+                {
+                    "escrita": "0"
+                }
+            ]
+        },
+        {
+            "estado": "->",
+            "actions": [
+                {
+                    "estado": "",
+                    "escrita": "",
+                    "diracao": ""
+                },
+                {
+                    "estado": "",
+                    "escrita": "",
+                    "diracao": ""
+                },
+                {
+                    "estado": "0",
+                    "escrita": "_",
+                    "diracao": "D"
+                },
+                {
+                    "estado": "0",
+                    "escrita": "_",
+                    "diracao": "D"
+                },
+                {
+                    "estado": "",
+                    "escrita": "",
+                    "diracao": ""
+                },
+                {
+                    "estado": "",
+                    "escrita": "",
+                    "diracao": ""
+                }
+            ]
+        },
+        {
+            "estado": "0",
+            "actions": [
+                {
+                    "estado": "1",
+                    "escrita": "X",
+                    "diracao": "D"
+                },
+                {
+                    "estado": "2",
+                    "escrita": "X",
+                    "diracao": "D"
+                },
+                {
+                    "estado": "0",
+                    "escrita": "X",
+                    "diracao": "D"
+                },
+                {
+                    "estado": "",
+                    "escrita": "",
+                    "diracao": ""
+                },
+                {
+                    "estado": "0",
+                    "escrita": "_",
+                    "diracao": "para"
+                },
+                {
+                    "estado": "0",
+                    "escrita": "0",
+                    "diracao": "fim"
+                }
+            ]
+        },
+        {
+            "estado": "1",
+            "actions": [
+                {
+                    "estado": "1",
+                    "escrita": "A",
+                    "diracao": "D"
+                },
+                {
+                    "estado": "X",
+                    "escrita": "X",
+                    "diracao": "E"
+                },
+                {
+                    "estado": "",
+                    "escrita": "",
+                    "diracao": ""
+                },
+                {
+                    "estado": "",
+                    "escrita": "",
+                    "diracao": ""
+                },
+                {
+                    "estado": "1",
+                    "escrita": "_",
+                    "diracao": "fim"
+                },
+                {
+                    "estado": "",
+                    "escrita": "",
+                    "diracao": ""
+                }
+            ]
+        },
+        {
+            "estado": "2",
+            "actions": [
+                {
+                    "estado": "X",
+                    "escrita": "X",
+                    "diracao": "E"
+                },
+                {
+                    "estado": "2",
+                    "escrita": "B",
+                    "diracao": "D"
+                },
+                {
+                    "estado": "",
+                    "escrita": "",
+                    "diracao": ""
+                },
+                {
+                    "estado": "",
+                    "escrita": "",
+                    "diracao": ""
+                },
+                {
+                    "estado": "2",
+                    "escrita": "_",
+                    "diracao": "fim"
+                },
+                {
+                    "estado": "",
+                    "escrita": "",
+                    "diracao": ""
+                }
+            ]
+        },
+        {
+            "estado": "X",
+            "actions": [
+                {
+                    "estado": "X",
+                    "escrita": "A",
+                    "diracao": "E"
+                },
+                {
+                    "estado": "X",
+                    "escrita": "B",
+                    "diracao": "E"
+                },
+                {
+                    "estado": "X",
+                    "escrita": "X",
+                    "diracao": "E"
+                },
+                {
+                    "estado": "",
+                    "escrita": "",
+                    "diracao": ""
+                },
+                {
+                    "estado": "0",
+                    "escrita": "_",
+                    "diracao": "D"
                 },
                 {
                     "estado": "",

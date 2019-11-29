@@ -12,7 +12,7 @@
 
     <link rel="stylesheet" type="text/css" href="bootstrap/style.css">
     <style>
-        .form-control {
+        .form-control-micro {
         margin-top: 10px;
         width: 30px;
         padding: 4px;
@@ -43,20 +43,21 @@
     </div>
 
     <div class="row text-right" ng-if="!execucao">
+        <div class="col-md-4 text-right">
 
-        <div class="col-md-6">
-            <button type="button" ng-click="addLeft(fita)" class="btn btn-primary ">< * Add</button> 
+        </div>
+
+        <div class="col-md-4 text-right">
+            <input type="text" ng-model="string" class="form-control" placeholder="Exemplo:    [->****_**]      (OBRIGADO INICIAR COM  '->')"/>
+            <button type="button" ng-click="getInputString(string)" class="btn btn-primary btn-block">Gerar fita</button> 
         </div> 
 
-        <div class="col-md-6">
-
-            <div class="text-left">
-                <button type="button" ng-click="addRight(fita)" class="btn btn-primary ">Add * ></button>
-            </div>
+        <div class="col-md-4">
 
             <div class="text-right">
                 <button type="button" ng-click="exemploMultiplicacao()" class="btn btn-info ">Exemplo Multiplicação</button>
                 <button type="button" ng-click="exemploSoma()" class="btn btn-warning ">Exemplo soma</button>
+                <button type="button" ng-click="tabelaComparaLetras()" class="btn btn-light ">Exemplo comparação</button>
             </div>
 
         </div>
@@ -91,7 +92,6 @@
 
 
         <table class="table table-striped table-bordered">
-            <!-- <caption>TESTEEEE</caption> -->
             <thead>
                 <tr>
 
@@ -109,7 +109,7 @@
                                 {{col.escrita}}
                             </div>
                             <div ng-show="tableIsEditable">
-                                <input type="text" class="form-control" ng-model="col.escrita"
+                                <input type="text" class="form-control form-control-micro" ng-model="col.escrita"
                                     placeholder="Ação escrita">
                             </div>
                         </div>
@@ -124,7 +124,7 @@
                             {{line.estado}}
                         </div>
                         <div ng-show="tableIsEditable">
-                            <input type="text" class="form-control" ng-model="line.estado" placeholder="">
+                            <input type="text" class="form-control form-control-micro" ng-model="line.estado" placeholder="">
                         </div>
                     </div>
 
@@ -144,13 +144,13 @@
 
                     <div class="row text-center" ng-show="tableIsEditable">
                         <div class="col-md-4">
-                            <input type="text" class="form-control" ng-model="action.estado" placeholder="">
+                            <input type="text" class="form-control form-control-micro" ng-model="action.estado" placeholder="">
                         </div>
                         <div class="col-md-4">
-                            <input type="text" class="form-control" ng-model="action.escrita" placeholder="">
+                            <input type="text" class="form-control form-control-micro" ng-model="action.escrita" placeholder="">
                         </div>
                         <div class="col-md-4">
-                            <input type="text" class="form-control" ng-model="action.diracao" placeholder="">
+                            <input type="text" class="form-control form-control-micro" ng-model="action.diracao" placeholder="">
                         </div>
                     </div>
 
@@ -184,9 +184,6 @@
             </div>
         </div>
     </div>
-
-    <!-- {{tabela}} -->
-
 </body>
 
 </html>
