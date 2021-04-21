@@ -1,0 +1,6 @@
+Para executar o projeto abra o arquivo index.html com um navegador de sua preferência.
+
+O arquivo que possui o código de manipulação de imagens é o app.js
+
+para editar o projeto abra a pasta raiz do projeto com um editor de código de sua preferência.
+

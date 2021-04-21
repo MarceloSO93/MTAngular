@@ -1,20 +1,18 @@
 angular.module("expressoesRegulares", []);
 angular.module("expressoesRegulares").controller("expressoesControle", function ($scope, $interval, $timeout) {
 
-    $scope.app = "Expressoes Regulares";
-    $scope.tableIsEditable = false;
+    $scope.app = "Vamos manipular imagens uhuuuuulllll!!!!!!!!!!";
 
-    $scope.simbolAddLeft = "";
-    $scope.simbolAddRight = "";
+    $scope.ctrlBtns = {
+        original: false,
+        grayscale: false,
+        invertede: false,
+        varinha: false,
+    }
 
-    $scope.estado = "->";
-    $scope.execucao = false;
+    var collHoveredColor = document.getElementById('hovered-color');
+    var collSelectedColor = document.getElementById('selected-color');
 
-    var stopLoop;
-
-    $scope.fita = []
-
-    let fitaReset = [];
 
     $scope.styleSection = function (fita) {
         return {
@@ -23,876 +21,196 @@ angular.module("expressoesRegulares").controller("expressoesControle", function 
         }
     }
 
-    var validaEntradaSimbolo = function (input) {
-        if (!input) {
-            alert("Informe um simbolo");
-            return undefined;
-        }
-        else if (input.length > 1) {
-            alert("Informe apenas um simbolo");
-            return undefined;
-        }
-        return input;
-    }
+    $scope.pixel
 
-    $scope.getInputString = function (string) {
-        $scope.fita = []; //limpa lista
-        var fita = [];
+    var img = new Image();
+    img.crossOrigin = 'anonymous';
+    // img.src = 'https://media.istockphoto.com/photos/happy-family-ride-in-the-car-picture-id1015452646';
+    img.src = 'https://media.istockphoto.com/photos/crazy-looking-black-and-white-border-collie-dog-say-looking-intently-picture-id1213516345';
 
-        if (string.length > 0) {
 
-            let a = string.charAt(0);
-            let b = string.charAt(1);
+    var canvas = document.getElementById('canvas');
+    var ctx = canvas.getContext('2d');
 
-            if (a + b == "->") {
-                fita.push({ simbolo: "->", cursor: true, style: { "left": 0 } });
-            } else {
-                alert("Simbolo inicial invalido");
-                return;
-            }
 
-            for (var i = 2; i < string.length; i++) {
-                fita.push({ simbolo: string.charAt(i), cursor: false, style: { "left": (i - 1) * 100 } });
-            }
-
-            generateRibbon(fita);
-        }
-    }
-
-    var generateRibbon = function (fita) {
-        for (var i = 0; i < fita.length; i++) {
-            $scope.fita.push(fita[i]);
-        }
-
-    }
-
-    $scope.addLeft = function (fita, simbolAddLeft) {
-        if (validaEntradaSimbolo(simbolAddLeft)) {
-            $scope.fita.splice(1, 0, { simbolo: simbolAddLeft, cursor: false, style: { "left": 0 } })
-            reorderPositionCels(fita)
-        }
-    }
-
-    $scope.addBlankLeft = function (fita) {
-        $scope.fita.splice(1, 0, { simbolo: "_", cursor: false, style: { "left": 0 } })
-        reorderPositionCels(fita)
-    }
-
-    $scope.addRight = function (fita, simbolAddRight) {
-        if (validaEntradaSimbolo(simbolAddRight)) {
-            $scope.fita.push({ simbolo: simbolAddRight, cursor: false, style: { "left": 0 } })
-            reorderPositionCels(fita)
-        }
-    }
-
-    $scope.addBlankRight = function (fita) {
-        $scope.fita.push({ simbolo: "_", cursor: false, style: { "left": 0 } })
-        reorderPositionCels(fita)
-    }
-
-    let reorderPositionCels = function (fita) {
-        $scope.fita = fita.filter((fita, index) => {
-            fita.style.left = index * 100;
-            return fita;
-        })
-    }
-
-    /*Mtethod execute work MT*/
-    $scope.play = function (fita, estado, tabela) {
-
-        if(fita.length <= 0){
-            alert("Fita não encontrada");
-            return;
-        }
-
-        $scope.execucao = true;
-        fitaReset = angular.copy(fita);
-
-        stopLoop = $interval(function () {
-            let celula = headRead($scope.fita);
-            var action = culsultActionsTable(celula, $scope.estado, $scope.tabela);
-            executeAction(action, $scope.fita);
-        }, 1000);
-
-    }
-
-    $scope.stop = function () {
-        $interval.cancel(stopLoop);
-        $scope.estado = "->";
-        stopLoop = undefined;
-        $scope.execucao = false;
+    img.onload = function () {
+        ctx.drawImage(img, 0, 0);
+        img.style.display = 'none';
     };
 
-    $scope.reset = function () {
-        if (fitaReset.length > 0) {
-            $scope.stop();
-            $scope.fita = angular.copy(fitaReset);
+
+    var invert = function () {
+        ctx.drawImage(img, 0, 0);
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const data = imageData.data;
+        for (var i = 0; i < data.length; i += 4) {
+            data[i] = 255 + data[i];     // red
+            data[i + 1] = 255 - data[i + 1]; // green
+            data[i + 2] = 255 - data[i + 2]; // blue
+        }
+        ctx.putImageData(imageData, 0, 0);
+    };
+
+    var grayscale = function () {
+        ctx.drawImage(img, 0, 0);
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const data = imageData.data;
+        for (var i = 0; i < data.length; i += 4) {
+            var avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
+            data[i] = avg; // red
+            data[i + 1] = avg; // green
+            data[i + 2] = avg; // blue
+        }
+        ctx.putImageData(imageData, 0, 0);
+    };
+
+    var original = function () {
+        ctx.drawImage(img, 0, 0);
+    };
+
+
+    $scope.pecentual = 0;
+
+    var calculaVariacaoRGB = function (valorRGB) {
+        
+        var variacaoRGB = Math.round( ($scope.pecentual * 255 ) / 100 );
+        var menor = 0;
+        var maior = 255;
+
+        if(variacaoRGB < valorRGB)
+            menor = valorRGB - variacaoRGB
+
+        if((valorRGB + variacaoRGB) < 255 ) 
+            maior = valorRGB + variacaoRGB
+
+        return variacaoRGB = {maior: maior, menor: menor}
+
+    }
+
+    var executaVariacaoRGB = function (pixelBase, corAtual) {
+        
+        var variacao = calculaVariacaoRGB(pixelBase)
+        
+        if(corAtual >= variacao.menor && corAtual <= variacao.maior) 
+            return true
+        else 
+            return false
+    }
+
+
+    var efeitoVarinha = function (pixelBase) {
+
+        ctx.drawImage(img, 0, 0);
+        const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const data = imgData.data;
+
+        var red = new Array();
+        var green = new Array();
+        var blue = new Array();
+        var alpha = new Array();
+
+        // Leia a imagem e faça alterações rapidamente enquanto ela é lida
+        for (i = 0; i < data.length; i += 4) {
+            
+          red[i] = imgData.data[i];
+          if ( executaVariacaoRGB(pixelBase.R, red[i] ) ) red[i] = pixelBase.R;
+
+          green[i] = imgData.data[i+1];
+          if ( executaVariacaoRGB(pixelBase.G, green[i] ) ) green[i] = pixelBase.G;
+
+          blue[i] = imgData.data[i+2];
+          if ( executaVariacaoRGB(pixelBase.B, blue[i] ) ) blue[i] = pixelBase.B;
+
+          alpha[i] = imgData.data[i+3]; // Again, no change
+        } 
+      
+        // Escreva a imagem de volta para a tela
+        for (i = 0; i < data.length; i += 4)  
+        {
+          imgData.data[i] = red[i];
+          imgData.data[i+1] = green[i];
+          imgData.data[i+2] = blue[i]; 
+          imgData.data[i+3] = alpha[i];   
+        } 
+      
+        ctx.putImageData(imgData, 0, 0);
+    };
+
+    function pick(event, destination) {
+        var x = event.layerX;
+        var y = event.layerY;
+
+        var pixel = ctx.getImageData(x, y, 1, 1);
+
+        var data = pixel.data;
+
+        const rgba = `rgba(${data[0]}, ${data[1]}, ${data[2]}, ${data[3] / 255})`;
+        destination.style.background = rgba;
+        destination.textContent = rgba;
+
+        return { R: data[0], G: data[1], B: data[2], A: data[3] / 255 }
+    }
+
+    // canvas.addEventListener('click', function (event) {
+    //     pick(event, collSelectedColor);
+    // });
+    canvas.addEventListener('mousemove', function (event) {
+        pick(event, collHoveredColor);
+    });
+    canvas.addEventListener('mouseout', function (event) {
+        collHoveredColor.style.background = "rgb(255, 255, 255)";
+    });
+    canvas.addEventListener('click', function (event) {
+        var rgba = pick(event, collSelectedColor)
+
+        if ($scope.ctrlBtns.varinha) {
+            efeitoVarinha(rgba)
+        }
+    });
+
+
+    //Ação dos botoes
+    $scope.setOriginal = function (booleano) {
+        $scope.ctrlBtns.original = !booleano;
+        $scope.ctrlBtns.grayscale = false;
+        $scope.ctrlBtns.invertede = false;
+        $scope.ctrlBtns.varinha = false;
+
+        if ($scope.ctrlBtns.original) {
+            original();
         }
     }
 
-    let headRead = function (fita) {
-        return fita.filter((fita, index) => {
-            return fita.cursor == true;
-        })[0];
-    }
 
-    let culsultActionsTable = function (celula, estado, tabela) {
-        var indexColumnHead = -1;
+    $scope.setGrayscale = function (booleano) {
+        $scope.ctrlBtns.original = false;
+        $scope.ctrlBtns.grayscale = !booleano;
+        $scope.ctrlBtns.invertede = false;
+        $scope.ctrlBtns.varinha = false;
 
-        for (var i = 0; i < tabela[0].head.length; i++) {
-            if (tabela[0].head[i].escrita == celula.simbolo) {
-                indexColumnHead = i;
-                break;
-            }
-        }
-        for (var i = 0; i < tabela.length; i++) {
-            if (tabela[i].estado == estado) {
-                return tabela[i].actions[indexColumnHead];
-            }
+        if ($scope.ctrlBtns.grayscale) {
+            grayscale();
         }
     }
 
-    let executeAction = function (action, fita) {
-        var indexCel;
-        var directionHead;
+    $scope.setInvertede = function (booleano) {
+        $scope.ctrlBtns.original = false;
+        $scope.ctrlBtns.grayscale = false;
+        $scope.ctrlBtns.invertede = !booleano;
+        $scope.ctrlBtns.varinha = false;
 
-        var celModified = fita.filter((fita, index) => {
-            if (fita.cursor == true) {
-                $scope.estado = action.estado;
-                fita.simbolo = action.escrita;
-                directionHead = action.diracao;
-                indexCel = index;
-                fita.cursor = false;
-                return fita;
-            }
-        })[0];
-
-        $scope.fita.splice(indexCel, 1, celModified);
-
-        moveHead(indexCel, directionHead)
-
-        return true;
-    }
-
-    let moveHead = function (index, directionHead) {
-        if (directionHead == "D") {
-
-            if (index + 1 > $scope.fita.length - 1) {
-                $scope.addBlankRight($scope.fita);
-            }
-
-            $scope.fita[index + 1].cursor = true;
-        } else if (directionHead == "E") {
-
-            if (index == 0) {
-                $scope.addBlankLeft($scope.fita);
-                $scope.fita[index].cursor = true;
-            } else {
-                $scope.fita[index - 1].cursor = true;
-            }
-
-        } else if (directionHead == "fim" || directionHead == "para") {
-            $scope.execucao = false;
-            $scope.stop();
-            alert("FIM");
-            return
-        } else {
-            alert(directionHead + " -> Simbolo não encontrado");
-        }
-
-    }
-
-    $scope.addLine = function (tabela) {
-        var columns = []
-
-        for (var i = 0; i < tabela[0].head.length; i++) {
-            columns.push(
-                { estado: "", escrita: "", diracao: "" }
-            );
-        }
-        var obj = {
-            estado: "",
-            actions: columns
-        }
-        tabela.push(obj);
-    }
-
-    $scope.removeLine = function (tabela) {
-        tabela.splice(tabela.length - 1, 1);
-    }
-
-    $scope.addColumn = function (tabela) {
-
-        tabela[0].head.push(
-            { escrita: "" }
-        );
-
-        for (var i = 1; i <= tabela.length; i++) {
-            tabela[i].actions.push(
-                { estado: "", escrita: "", diracao: "" }
-            );
-        }
-        tabela.push(obj);
-    }
-
-    $scope.styleSizeTable = function (tabela) {
-
-        let size = tabela[0].head.length;
-
-        if (size <= 3 || size == undefined) {
-            return {
-                "width": 500,
-                "transition": "transform 0.5s;"
-            }
-        } else {
-            return {
-                "width": size * 150,
-                "transition": "transform 0.5s;"
-            }
+        if ($scope.ctrlBtns.invertede) {
+            invert();
         }
     }
 
-
-    $scope.removeColumn = function (tabela) {
-        tabela[0].head.splice(tabela[0].head.length - 1, 1);
-
-        for (var i = 1; i <= tabela.length; i++) {
-            tabela[i].actions.splice(tabela[0].head.length - 1, 1);
-        }
-        tabela.push(obj);
-    }
-
-    $scope.editeTable = function () {
-        $scope.tableIsEditable = !$scope.tableIsEditable;
+    $scope.setVarinha = function (booleano) {
+        $scope.ctrlBtns.original = false;
+        $scope.ctrlBtns.grayscale = false;
+        $scope.ctrlBtns.invertede = false;
+        $scope.ctrlBtns.varinha = !booleano;
     }
 
 
 
-    $scope.exemploSoma = function () {
-        $scope.tabela = tabelaSoma;
-    }
-
-    $scope.exemploMultiplicacao = function () {
-        $scope.tabela = tabelaMultiplicacao;
-    }
-
-    $scope.tabelaComparaLetras = function () {
-        $scope.tabela = tabelaComparaLetras;
-        $scope.string = "->AB"
-    }
-
-
-
-    var tabelaMultiplicacao = [
-        {
-            "description": "Est.",
-            "head": [
-                {
-                    "escrita": "*"
-                },
-                {
-                    "escrita": "_"
-                },
-                {
-                    "escrita": "->"
-                },
-                {
-                    "escrita": "A"
-                }
-            ]
-        },
-        {
-            "estado": "->",
-            "actions": [
-                {
-                    "estado": "->",
-                    "escrita": "*",
-                    "diracao": "E"
-                },
-                {
-                    "estado": "->",
-                    "escrita": "_",
-                    "diracao": "E"
-                },
-                {
-                    "estado": "0",
-                    "escrita": "_",
-                    "diracao": "D"
-                },
-                {
-                    "estado": "->",
-                    "escrita": "*",
-                    "diracao": "E"
-                }
-            ]
-        },
-        {
-            "estado": "0",
-            "actions": [
-                {
-                    "estado": "1",
-                    "escrita": "->",
-                    "diracao": "D"
-                },
-                {
-                    "estado": "6",
-                    "escrita": "_",
-                    "diracao": "D"
-                },
-                {
-                    "estado": "",
-                    "escrita": "",
-                    "diracao": ""
-                },
-                {
-
-                }
-            ]
-        },
-        {
-            "estado": "1",
-            "actions": [
-                {
-                    "estado": "1",
-                    "escrita": "*",
-                    "diracao": "D"
-                },
-                {
-                    "estado": "2",
-                    "escrita": "_",
-                    "diracao": "D"
-                },
-                {
-                    "estado": "",
-                    "escrita": "",
-                    "diracao": ""
-                },
-                {
-                    "estado": "",
-                    "escrita": "",
-                    "diracao": ""
-                }
-            ]
-        },
-        {
-            "estado": "2",
-            "actions": [
-                {
-                    "estado": "3",
-                    "escrita": "A",
-                    "diracao": "D"
-                },
-                {
-                    "estado": "->",
-                    "escrita": "_",
-                    "diracao": "E"
-                },
-                {
-                    "estado": "",
-                    "escrita": "",
-                    "diracao": ""
-                },
-                {
-                    "estado": "",
-                    "escrita": "",
-                    "diracao": ""
-                }
-            ]
-        },
-        {
-            "estado": "3",
-            "actions": [
-                {
-                    "estado": "3",
-                    "escrita": "*",
-                    "diracao": "D"
-                },
-                {
-                    "estado": "4",
-                    "escrita": "_",
-                    "diracao": "D"
-                },
-                {
-                    "estado": "",
-                    "escrita": "",
-                    "diracao": ""
-                },
-                {
-                    "estado": "",
-                    "escrita": "",
-                    "diracao": ""
-                }
-            ]
-        },
-        {
-            "estado": "4",
-            "actions": [
-                {
-                    "estado": "4",
-                    "escrita": "*",
-                    "diracao": "D"
-                },
-                {
-                    "estado": "5",
-                    "escrita": "*",
-                    "diracao": "E"
-                },
-                {
-                    "estado": "",
-                    "escrita": "",
-                    "diracao": ""
-                },
-                {
-                    "estado": "",
-                    "escrita": "",
-                    "diracao": ""
-                }
-            ]
-        },
-        {
-            "estado": "5",
-            "actions": [
-                {
-                    "estado": "5",
-                    "escrita": "*",
-                    "diracao": "E"
-                },
-                {
-                    "estado": "5",
-                    "escrita": "_",
-                    "diracao": "E"
-                },
-                {
-                    "estado": "",
-                    "escrita": "",
-                    "diracao": ""
-                },
-                {
-                    "estado": "2",
-                    "escrita": "A",
-                    "diracao": "D"
-                }
-            ]
-        },
-        {
-            "estado": "6",
-            "actions": [
-                {
-                    "estado": "6",
-                    "escrita": "_",
-                    "diracao": "D"
-                },
-                {
-                    "estado": "fim",
-                    "escrita": "_",
-                    "diracao": "para"
-                },
-                {
-                    "estado": "",
-                    "escrita": "",
-                    "diracao": ""
-                },
-                {
-                    "estado": "",
-                    "escrita": "",
-                    "diracao": ""
-                }
-            ]
-        }
-    ];
-
-    $scope.tabela = [
-        {
-            "description": "Est.",
-            "head": [
-                {
-                    "escrita": ""
-                },
-                {
-                    "escrita": ""
-                },
-                {
-                    "escrita": ""
-                }
-            ]
-        },
-        {
-            "estado": "",
-            "actions": [
-                {
-                    "estado": "",
-                    "escrita": "",
-                    "diracao": ""
-                },
-                {
-                    "estado": "",
-                    "escrita": "",
-                    "diracao": ""
-                },
-                {
-                    "estado": "",
-                    "escrita": "",
-                    "diracao": ""
-                }
-            ]
-        },
-        {
-            "estado": "",
-            "actions": [
-                {
-                    "estado": "",
-                    "escrita": "",
-                    "diracao": ""
-                },
-                {
-                    "estado": "",
-                    "escrita": "",
-                    "diracao": ""
-                },
-                {
-
-                }
-            ]
-        },
-        {
-            "estado": "",
-            "actions": [
-                {
-                    "estado": "",
-                    "escrita": "",
-                    "diracao": ""
-                },
-                {
-                    "estado": "",
-                    "escrita": "",
-                    "diracao": ""
-                },
-                {
-                    "estado": "",
-                    "escrita": "",
-                    "diracao": ""
-                }
-            ]
-        },
-        {
-            "estado": "",
-            "actions": [
-                {
-                    "estado": "",
-                    "escrita": "",
-                    "diracao": ""
-                },
-                {
-                    "estado": "",
-                    "escrita": "",
-                    "diracao": ""
-                },
-                {
-                    "estado": "",
-                    "escrita": "",
-                    "diracao": ""
-                }
-            ]
-        }
-    ];
-
-
-
-    var tabelaSoma = [
-        {
-            "description": "Est.",
-            "head": [
-                {
-                    "escrita": "*"
-                },
-                {
-                    "escrita": "_"
-                },
-                {
-                    "escrita": "->"
-                }
-            ]
-        },
-        {
-            "estado": "->",
-            "actions": [
-                {
-                    "estado": "",
-                    "escrita": "",
-                    "diracao": ""
-                },
-                {
-                    "estado": "",
-                    "escrita": "",
-                    "diracao": ""
-                },
-                {
-                    "estado": "0",
-                    "escrita": "_",
-                    "diracao": "D"
-                }
-            ]
-        },
-        {
-            "estado": "0",
-            "actions": [
-                {
-                    "estado": "0",
-                    "escrita": "*",
-                    "diracao": "D"
-                },
-                {
-                    "estado": "1",
-                    "escrita": "*",
-                    "diracao": "D"
-                },
-                {
-
-                }
-            ]
-        },
-        {
-            "estado": "1",
-            "actions": [
-                {
-                    "estado": "1",
-                    "escrita": "*",
-                    "diracao": "D"
-                },
-                {
-                    "estado": "2",
-                    "escrita": "_",
-                    "diracao": "E"
-                },
-                {
-                    "estado": "",
-                    "escrita": "",
-                    "diracao": ""
-                }
-            ]
-        },
-        {
-            "estado": "2",
-            "actions": [
-                {
-                    "estado": "fim",
-                    "escrita": "_",
-                    "diracao": "para"
-                },
-                {
-                    "estado": "",
-                    "escrita": "",
-                    "diracao": ""
-                },
-                {
-                    "estado": "",
-                    "escrita": "",
-                    "diracao": ""
-                }
-            ]
-        }
-    ];
-
-
-
-    var tabelaComparaLetras = [
-        {
-            "description": "Est.",
-            "head": [
-                {
-                    "escrita": "A"
-                },
-                {
-                    "escrita": "B"
-                },
-                {
-                    "escrita": "X"
-                },
-                {
-                    "escrita": "->"
-                },
-                {
-                    "escrita": "_"
-                },
-                {
-                    "escrita": "0"
-                }
-            ]
-        },
-        {
-            "estado": "->",
-            "actions": [
-                {
-                    "estado": "",
-                    "escrita": "",
-                    "diracao": ""
-                },
-                {
-                    "estado": "",
-                    "escrita": "",
-                    "diracao": ""
-                },
-                {
-                    "estado": "0",
-                    "escrita": "_",
-                    "diracao": "D"
-                },
-                {
-                    "estado": "0",
-                    "escrita": "_",
-                    "diracao": "D"
-                },
-                {
-                    "estado": "",
-                    "escrita": "",
-                    "diracao": ""
-                },
-                {
-                    "estado": "",
-                    "escrita": "",
-                    "diracao": ""
-                }
-            ]
-        },
-        {
-            "estado": "0",
-            "actions": [
-                {
-                    "estado": "1",
-                    "escrita": "X",
-                    "diracao": "D"
-                },
-                {
-                    "estado": "2",
-                    "escrita": "X",
-                    "diracao": "D"
-                },
-                {
-                    "estado": "0",
-                    "escrita": "X",
-                    "diracao": "D"
-                },
-                {
-                    "estado": "",
-                    "escrita": "",
-                    "diracao": ""
-                },
-                {
-                    "estado": "0",
-                    "escrita": "_",
-                    "diracao": "para"
-                },
-                {
-                    "estado": "0",
-                    "escrita": "0",
-                    "diracao": "fim"
-                }
-            ]
-        },
-        {
-            "estado": "1",
-            "actions": [
-                {
-                    "estado": "1",
-                    "escrita": "A",
-                    "diracao": "D"
-                },
-                {
-                    "estado": "X",
-                    "escrita": "X",
-                    "diracao": "E"
-                },
-                {
-                    "estado": "",
-                    "escrita": "",
-                    "diracao": ""
-                },
-                {
-                    "estado": "",
-                    "escrita": "",
-                    "diracao": ""
-                },
-                {
-                    "estado": "1",
-                    "escrita": "_",
-                    "diracao": "fim"
-                },
-                {
-                    "estado": "",
-                    "escrita": "",
-                    "diracao": ""
-                }
-            ]
-        },
-        {
-            "estado": "2",
-            "actions": [
-                {
-                    "estado": "X",
-                    "escrita": "X",
-                    "diracao": "E"
-                },
-                {
-                    "estado": "2",
-                    "escrita": "B",
-                    "diracao": "D"
-                },
-                {
-                    "estado": "",
-                    "escrita": "",
-                    "diracao": ""
-                },
-                {
-                    "estado": "",
-                    "escrita": "",
-                    "diracao": ""
-                },
-                {
-                    "estado": "2",
-                    "escrita": "_",
-                    "diracao": "fim"
-                },
-                {
-                    "estado": "",
-                    "escrita": "",
-                    "diracao": ""
-                }
-            ]
-        },
-        {
-            "estado": "X",
-            "actions": [
-                {
-                    "estado": "X",
-                    "escrita": "A",
-                    "diracao": "E"
-                },
-                {
-                    "estado": "X",
-                    "escrita": "B",
-                    "diracao": "E"
-                },
-                {
-                    "estado": "X",
-                    "escrita": "X",
-                    "diracao": "E"
-                },
-                {
-                    "estado": "",
-                    "escrita": "",
-                    "diracao": ""
-                },
-                {
-                    "estado": "0",
-                    "escrita": "_",
-                    "diracao": "D"
-                },
-                {
-                    "estado": "",
-                    "escrita": "",
-                    "diracao": ""
-                }
-            ]
-        }
-    ];
 });
